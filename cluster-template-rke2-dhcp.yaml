@@ -9,7 +9,7 @@ metadata:
   namespace: ${NAMESPACE}
   name: ${CLUSTER_NAME} 
   labels:
-${RANCHER_TURTLES_LABEL}
+    ${RANCHER_TURTLES_LABEL}
     ccm: external
     csi: external
     cni: external
@@ -35,7 +35,7 @@ spec:
     listeners:
     - name: rke2-server
       port: 9345
-      protocol: TCk
+      protocol: TCP
       backendPort: 9345
   server: ${HARVESTER_ENDPOINT}
   identitySecret: 
