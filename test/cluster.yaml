@@ -2,7 +2,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerCluster
 metadata:
   name: capi-cl1
-  namespace: capi-clusters1
+  namespace: capi-clusterss
   annotations:
     "helm.sh/resource-policy": keep
 spec:
@@ -14,7 +14,7 @@ apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
   name: capi-cl1
-  namespace: capi-clusters1
+  namespace: capi-clusterss
 spec:
   clusterNetwork:
     pods:
@@ -37,7 +37,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerMachineTemplate
 metadata:
   name: capi-cl1-cp
-  namespace: capi-clusters1
+  namespace: capi-clusterss
 spec:
   template:
     spec:
@@ -48,7 +48,7 @@ apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: RKE2ControlPlane
 metadata:
   name: capi-cl1-cp
-  namespace: capi-clusters1
+  namespace: capi-clusterss
   annotations:
     "helm.sh/resource-policy": keep
 spec: 
@@ -79,7 +79,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerMachineTemplate
 metadata:
   name: capi-cl1-md0
-  namespace: capi-clusters1
+  namespace: capi-clusterss
 spec:
   template:
     spec:
@@ -90,7 +90,7 @@ apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: RKE2ConfigTemplate
 metadata:
   name: capi-cl1-md0
-  namespace: capi-clusters1
+  namespace: capi-clusterss
 spec:
   template:
     spec: {}
@@ -99,7 +99,7 @@ apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
   name: capi-cl1-md0
-  namespace: capi-clusters1
+  namespace: capi-clusterss
   annotations:
     "helm.sh/resource-policy": keep
 spec:
@@ -184,6 +184,6 @@ data:
 kind: ConfigMap
 metadata:
   name: capi-cl1-lb-config
-  namespace: capi-clusters1
+  namespace: capi-clusterss
   annotations:
     "helm.sh/resource-policy": keep
