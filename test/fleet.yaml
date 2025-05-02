@@ -1,0 +1,11 @@
+diff:
+  comparePatches:
+    - apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+      kind: RKE2ControlPlane
+      name: rke2-test-control-plane
+      namespace: new
+      operations:
+        - op: remove
+          path: /spec/machineTemplate/nodeDrainTimeout
+        - op: remove
+          path: /spec/machineTemplate/nodeVolumeDetachTimeout
