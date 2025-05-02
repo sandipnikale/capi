@@ -1,59 +1,58 @@
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-kind: DockerCluster
+apiVersion: v1
+kind: Namespace
 metadata:
-  name: capi-cl1
-  namespace: capi-clusterss
-  annotations:
-    "helm.sh/resource-policy": keep
-spec:
-  loadBalancer:
-    customHAProxyConfigTemplateRef:
-      name: capi-cl1-lb-config
+  name: new
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
-  name: capi-cl1
-  namespace: capi-clusterss
+  name: rke2-test
+  namespace: new
 spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - 10.1.0.0/16
+      - 10.45.0.0/16
     serviceDomain: cluster.local
     services:
       cidrBlocks:
-      - 10.10.0.0/16
+      - 10.46.0.0/16
   controlPlaneRef:
     apiVersion: controlplane.cluster.x-k8s.io/v1beta1
     kind: RKE2ControlPlane
-    name: capi-cl1-cp
+    name: rke2-test-control-plane
   infrastructureRef:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: DockerCluster
-    name: capi-cl1
+    name: rke2-test
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-kind: DockerMachineTemplate
+kind: DockerCluster
 metadata:
-  name: capi-cl1-cp
-  namespace: capi-clusterss
+  name: rke2-test
+  namespace: new
 spec:
-  template:
-    spec:
-      customImage: kindest/node:v1.26.0
-      bootstrapTimeout: 15m
+  loadBalancer:
+    customHAProxyConfigTemplateRef:
+      name: rke2-test-lb-config
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: RKE2ControlPlane
 metadata:
-  name: capi-cl1-cp
-  namespace: capi-clusterss
-  annotations:
-    "helm.sh/resource-policy": keep
-spec: 
+  name: rke2-test-control-plane
+  namespace: new
+spec:
+  agentConfig: {}
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: DockerMachineTemplate
+      name: controlplane
+    nodeDeletionTimeout: 30s
+    nodeDrainTimeout: 2m
+    nodeVolumeDetachTimeout: 5m
+  registrationMethod: control-plane-endpoint
   replicas: 1
-  registrationMethod: internal-first
   rolloutStrategy:
     rollingUpdate:
       maxSurge: 1
@@ -62,64 +61,69 @@ spec:
     disableComponents:
       kubernetesComponents:
       - cloudController
-  machineTemplate:
-    infrastructureRef:
-      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-      kind: DockerMachineTemplate
-      name:  capi-cl1-cp
-    nodeDrainTimeout: 30s
-  infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-    kind: DockerMachineTemplate
-    name:  capi-cl1-cp
-  nodeDrainTimeout: 30s
-  version: v1.26.4+rke2r1
+    kubeAPIServer:
+      extraArgs:
+      - --anonymous-auth=true
+  version: v1.31.4+rke2r1
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerMachineTemplate
 metadata:
-  name: capi-cl1-md0
-  namespace: capi-clusterss
+  name: controlplane
+  namespace: new
 spec:
   template:
     spec:
-      customImage: kindest/node:v1.26.0
       bootstrapTimeout: 15m
----
-apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-kind: RKE2ConfigTemplate
-metadata:
-  name: capi-cl1-md0
-  namespace: capi-clusterss
-spec:
-  template:
-    spec: {}
+      customImage: kindest/node:v1.31.4
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
-  name: capi-cl1-md0
-  namespace: capi-clusterss
-  annotations:
-    "helm.sh/resource-policy": keep
+  name: worker-md-0
+  namespace: new
 spec:
-  clusterName: capi-cl1
+  clusterName: rke2-test
   replicas: 1
   selector:
-    matchLabels: null
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: rke2-test
   template:
     spec:
       bootstrap:
         configRef:
           apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
           kind: RKE2ConfigTemplate
-          name: capi-cl1-md0
-      clusterName: capi-cl1
+          name: rke2-test-agent
+          namespace: new
+      clusterName: rke2-test
       infrastructureRef:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: DockerMachineTemplate
-        name: capi-cl1-md0
-      version: v1.26.4+rke2r1
+        name: worker
+        namespace: new
+      version: v1.31.4+rke2r1
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: DockerMachineTemplate
+metadata:
+  name: worker
+  namespace: new
+spec:
+  template:
+    spec:
+      bootstrapTimeout: 15m
+      customImage: kindest/node:v1.31.4
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: RKE2ConfigTemplate
+metadata:
+  name: rke2-test-agent
+  namespace: new
+spec:
+  template:
+    spec:
+      agentConfig: {}
 ---
 apiVersion: v1
 data:
@@ -148,10 +152,12 @@ data:
       default-server init-addr none
 
     frontend stats
+      mode http
       bind *:8404
       stats enable
-      stats uri /
-      stats refresh 10s
+      stats uri /stats
+      stats refresh 1s
+      stats admin if TRUE
 
     frontend control-plane
       bind *:{{ .FrontendControlPlanePort }}
@@ -159,13 +165,11 @@ data:
       bind :::{{ .FrontendControlPlanePort }};
       {{- end }}
       default_backend kube-apiservers
-
     backend kube-apiservers
       option httpchk GET /healthz
-      http-check expect status 401
-      # TODO: we should be verifying (!)
-      {{range $server, $address := .BackendServers}}
-      server {{ $server }} {{ JoinHostPort $address $.BackendControlPlanePort }} check check-ssl verify none resolvers docker resolve-prefer {{ if $.IPv6 -}} ipv6 {{- else -}} ipv4 {{- end }}
+
+      {{range $server, $backend := .BackendServers}}
+      server {{ $server }} {{ JoinHostPort $backend.Address $.BackendControlPlanePort }} check check-ssl verify none resolvers docker resolve-prefer {{ if $.IPv6 -}} ipv6 {{- else -}} ipv4 {{- end }}
       {{- end}}
 
     frontend rke2-join
@@ -178,12 +182,10 @@ data:
     backend rke2-servers
       option httpchk GET /v1-rke2/readyz
       http-check expect status 403
-      {{range $server, $address := .BackendServers}}
-      server {{ $server }} {{ $address }}:9345 check check-ssl verify none
+      {{range $server, $backend := .BackendServers}}
+      server {{ $server }} {{ $backend.Address }}:9345 check check-ssl verify none
       {{- end}}
 kind: ConfigMap
 metadata:
-  name: capi-cl1-lb-config
-  namespace: capi-clusterss
-  annotations:
-    "helm.sh/resource-policy": keep
+  name: rke2-test-lb-config
+  namespace: new
