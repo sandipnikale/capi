@@ -52,5 +52,5 @@ helm install rancher rancher-latest/rancher \
 
 kubectl rollout status deployment rancher -n cattle-system --timeout=180s
 
-kubectl apply -f ./ingress/ingress.yaml
-kubectl apply -f ./ingress/rancher-service-patch.yaml --server-side
+kubectl apply -f ./Ingress/ingress.yaml
+kubectl apply -f ./Ingress/rancher-service-patch.yaml --server-side
