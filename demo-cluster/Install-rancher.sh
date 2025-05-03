@@ -30,7 +30,7 @@ helm install ngrok-operator ngrok/ngrok-operator \
 sleep 90
 #kubectl rollout status deployment ngrok-kubernetes-ingress-controller-manager --timeout=90s
 
-kubectl apply -f ./rancher-ingress/ingress-class-patch.yaml --server-side
+kubectl apply -f ./Ingress/ingress-class-patch.yaml --server-side
 
 helm install cert-manager jetstack/cert-manager \
 	--namespace cert-manager \
