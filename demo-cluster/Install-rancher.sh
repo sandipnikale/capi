@@ -19,15 +19,16 @@ kubectl rollout status deployment coredns -n kube-system --timeout=90s
 
 helm repo add jetstack https://charts.jetstack.io
 helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
-helm repo add ngrok https://ngrok.github.io/kubernetes-ingress-controller
+#helm repo add ngrok https://ngrok.github.io/kubernetes-ingress-controller
+helm repo add ngrok https://charts.ngrok.com
 helm repo update
 
-helm install ngrok ngrok/kubernetes-ingress-controller \
+helm install ngrok-operator ngrok/ngrok-operator \
 	--set credentials.apiKey="$NGROK_API_KEY" \
 	--set credentials.authtoken="$NGROK_AUTHTOKEN" \
 	--wait
-
-kubectl rollout status deployment ngrok-kubernetes-ingress-controller-manager --timeout=90s
+sleep 90
+#kubectl rollout status deployment ngrok-kubernetes-ingress-controller-manager --timeout=90s
 
 kubectl apply -f ./rancher-ingress/ingress-class-patch.yaml --server-side
 
