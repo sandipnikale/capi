@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: default
+  name: new
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
   name: rke2-test
-  namespace: default
+  namespace: new
 spec:
   clusterNetwork:
     pods:
@@ -31,7 +31,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerCluster
 metadata:
   name: rke2-test
-  namespace: default
+  namespace: new
 spec:
   loadBalancer:
     customHAProxyConfigTemplateRef:
@@ -41,7 +41,7 @@ apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: RKE2ControlPlane
 metadata:
   name: rke2-test-control-plane
-  namespace: default
+  namespace: new
 spec:
   agentConfig: {}
   machineTemplate:
@@ -71,7 +71,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerMachineTemplate
 metadata:
   name: controlplane
-  namespace: default
+  namespace: new
 spec:
   template:
     spec:
@@ -82,7 +82,7 @@ apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
   name: worker-md-0
-  namespace: default
+  namespace: new
 spec:
   clusterName: rke2-test
   replicas: 1
@@ -96,20 +96,20 @@ spec:
           apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
           kind: RKE2ConfigTemplate
           name: rke2-test-agent
-          namespace: default
+          namespace: new
       clusterName: rke2-test
       infrastructureRef:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: DockerMachineTemplate
         name: worker
-        namespace: default
+        namespace: new
       version: v1.31.4+rke2r1
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerMachineTemplate
 metadata:
   name: worker
-  namespace: default
+  namespace: new
 spec:
   template:
     spec:
@@ -121,7 +121,7 @@ apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: RKE2ConfigTemplate
 metadata:
   name: rke2-test-agent
-  namespace: default
+  namespace: new
 spec:
   template:
     spec:
@@ -144,7 +144,7 @@ data:
     resolvers docker
       nameserver dns 127.0.0.11:53
 
-    defaults
+    news
       log global
       mode tcp
       option dontlognull
@@ -153,7 +153,7 @@ data:
       timeout client 50000
       timeout server 50000
       # allow to boot despite dns don't resolve backends
-      default-server init-addr none
+      new-server init-addr none
 
     frontend stats
       mode http
@@ -168,7 +168,7 @@ data:
       {{ if .IPv6 -}}
       bind :::{{ .FrontendControlPlanePort }};
       {{- end }}
-      default_backend kube-apiservers
+      new_backend kube-apiservers
     backend kube-apiservers
       option httpchk GET /healthz
 
@@ -181,7 +181,7 @@ data:
       {{ if .IPv6 -}}
       bind :::9345;
       {{- end }}
-      default_backend rke2-servers
+      new_backend rke2-servers
 
     backend rke2-servers
       option httpchk GET /v1-rke2/readyz
@@ -192,5 +192,5 @@ data:
 kind: ConfigMap
 metadata:
   name: rke2-test-lb-config
-  namespace: default
+  namespace: new
 
