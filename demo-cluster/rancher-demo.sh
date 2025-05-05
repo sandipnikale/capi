@@ -68,7 +68,7 @@ Description=Rancher Port Forwarding Service (kubectl + socat)
 After=network.target
 
 [Service]
-ExecStart=/bin/bash -c "/usr/local/bin/kubectl -n cattle-system port-forward svc/rancher 8443:443 & /usr/bin/socat TCP-LISTEN:8444,fork TCP:127.0.0.1:8443"
+ExecStart=/bin/bash -c "/usr/local/bin/kubectl -n cattle-system port-forward svc/rancher 8443:443 & /usr/bin/socat TCP-LISTEN:443,fork TCP:127.0.0.1:8443"
 Restart=always
 RestartSec=5
 User=root
