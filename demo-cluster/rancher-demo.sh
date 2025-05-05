@@ -23,7 +23,7 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.6
 echo "🚀 Installing cert-manager..."
 helm upgrade -i cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v1.6.1 \
+  --version v1.16.3 \
   --set startupapicheck.nodeSelector."kubernetes\.io/os"=linux \
   --create-namespace
 
