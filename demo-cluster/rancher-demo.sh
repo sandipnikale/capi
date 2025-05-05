@@ -26,7 +26,7 @@ helm upgrade -i cert-manager jetstack/cert-manager \
   --version v1.16.3 \
   --set startupapicheck.nodeSelector."kubernetes\.io/os"=linux \
   --create-namespace \
-  --set installCRDs=true
+  --set crds.enabled=true
 
 echo "⏳ Waiting for cert-manager components to become available..."
 kubectl wait deployment -n cert-manager cert-manager --for condition=Available=True --timeout=120s
