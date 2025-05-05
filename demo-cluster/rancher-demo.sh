@@ -86,4 +86,4 @@ sudo systemctl start rancher-port-forward.service
 
 # Display the access URL
 echo "🎉 Rancher port-forwarding now running in background as a service."
-echo "You can access Rancher at https://${NODE_IP}:8444"
+echo "You can access Rancher at https://${NODE_IP}.sslip.io"
