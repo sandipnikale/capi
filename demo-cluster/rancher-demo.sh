@@ -17,15 +17,16 @@ helm repo add jetstack https://charts.jetstack.io
 helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
 helm repo update
 
-echo "📄 Applying cert-manager CRDs..."
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.crds.yaml
+#echo "📄 Applying cert-manager CRDs..."
+#kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.crds.yaml
 
 echo "🚀 Installing cert-manager..."
 helm upgrade -i cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --version v1.16.3 \
   --set startupapicheck.nodeSelector."kubernetes\.io/os"=linux \
-  --create-namespace
+  --create-namespace \
+  --set installCRDs=true
 
 echo "⏳ Waiting for cert-manager components to become available..."
 kubectl wait deployment -n cert-manager cert-manager --for condition=Available=True --timeout=120s
