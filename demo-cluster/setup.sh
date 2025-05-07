@@ -85,7 +85,7 @@ until /usr/local/bin/kubectl --kubeconfig=$KUBECONFIG get nodes >/dev/null 2>&1;
 done
 echo "✅ Kubernetes API is ready!"
 
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.crds.yaml --validate=false
+/usr/local/bin/kubectl --kubeconfig=$KUBECONFIG apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.crds.yaml --validate=false
 
 # Add Helm repositories
 echo "📡 Adding Helm repositories..."
