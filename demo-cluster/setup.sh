@@ -97,7 +97,6 @@ echo "🔐 Installing cert-manager..."
 helm upgrade -i cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --version v1.16.3 \
-  --set startupapicheck.nodeSelector."kubernetes\.io/os"=linux \
   --create-namespace \
   --set crds.enabled=true
 
