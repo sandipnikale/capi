@@ -77,12 +77,11 @@ sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown $USER:$USER ~/.kube/config
 chmod 600 ~/.kube/config
 
-echo "⏳ Waiting for Kubernetes API (http://localhost:8080/version) to become reachable..."
-until curl --silent --fail http://localhost:8080/version >/dev/null; do
-  echo "⌛ Still waiting on Kubernetes API... retrying in 5s"
+until kubectl get nodes >/dev/null 2>&1; do
+  echo "⌛ Kubernetes API not ready yet. Retrying in 5s..."
   sleep 5
 done
-echo "✅ Kubernetes API is reachable!"
+echo "✅ Kubernetes API is ready!"
 
 # Add Helm repositories
 echo "📡 Adding Helm repositories..."
