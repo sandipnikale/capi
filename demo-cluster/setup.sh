@@ -85,6 +85,7 @@ until /usr/local/bin/kubectl --kubeconfig=$KUBECONFIG get nodes >/dev/null 2>&1;
 done
 echo "✅ Kubernetes API is ready!"
 
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.crds.yaml
 
 # Add Helm repositories
 echo "📡 Adding Helm repositories..."
@@ -94,11 +95,11 @@ helm repo update
 
 # Install cert-manager with updated command
 echo "🔐 Installing cert-manager..."
-helm upgrade -i cert-manager jetstack/cert-manager \
+helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v1.16.3 \
   --create-namespace \
-  --set crds.enabled=true
+  --version v1.17.2 \
+  --atomic 
 
 # Install Rancher using specified hostname and version
 export NODE_IP=$(curl -s https://checkip.amazonaws.com)
