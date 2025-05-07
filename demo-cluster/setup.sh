@@ -65,7 +65,7 @@ if ! command -v k3s &>/dev/null; then
   echo "🚀 Installing K3s (latest stable)..."
   curl -sfL https://get.k3s.io | sh -
   echo "⏳ Waiting for K3s to initialize..."
-  sleep 15
+  sleep 60
 else
   echo "✔ K3s is already installed."
 fi
