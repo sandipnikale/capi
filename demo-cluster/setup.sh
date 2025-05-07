@@ -65,7 +65,7 @@ if ! command -v k3s &>/dev/null; then
   echo "🚀 Installing K3s (latest stable)..."
   curl -sfL https://get.k3s.io | sh -
   echo "⏳ Waiting for K3s to initialize..."
-  sleep 60
+  sleep 30
 else
   echo "✔ K3s is already installed."
 fi
@@ -76,6 +76,13 @@ mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown $USER:$USER ~/.kube/config
 chmod 600 ~/.kube/config
+
+echo "⏳ Waiting for Kubernetes API (http://localhost:8080/version) to become reachable..."
+until curl --silent --fail http://localhost:8080/version >/dev/null; do
+  echo "⌛ Still waiting on Kubernetes API... retrying in 5s"
+  sleep 5
+done
+echo "✅ Kubernetes API is reachable!"
 
 # Add Helm repositories
 echo "📡 Adding Helm repositories..."
