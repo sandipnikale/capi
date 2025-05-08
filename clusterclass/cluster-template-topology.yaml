@@ -1,34 +1,32 @@
----
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
-  name: "${CLUSTER_NAME}"
-  namespace: default
+  name: docker-rke2-example
+  labels:
+    cni: calico
+  annotations:
+    cluster-api.cattle.io/upstream-system-agent: "true"
 spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - 10.45.0.0/16
-    serviceDomain: cluster.local
+      - 192.168.0.0/16
     services:
       cidrBlocks:
-      - 10.46.0.0/16
+      - 10.96.0.0/24
+    serviceDomain: cluster.local
   topology:
-    class: rke2-class
-    version: ${KUBERNETES_VERSION}+rke2r1
+    class: docker-rke2-example
     controlPlane:
-      metadata: {}
-      replicas: ${CONTROL_PLANE_MACHINE_COUNT}
-      variables:
-      - name: rke2CNI
-        value: none
-      - name: dockerImage
-        value: kindest/node:${KUBERNETES_VERSION}
+      replicas: 3
+    variables:
+    - name: rke2CNI
+      value: none
+    - name: dockerImage
+      value: kindest/node:v1.31.6
+    version: v1.31.6+rke2r1
     workers:
       machineDeployments:
       - class: default-worker
         name: md-0
-        replicas: ${WORKER_MACHINE_COUNT}
-    variables:
-      - name: dockerKindImage
-        value: kindest/node:${KUBERNETES_VERSION}
+        replicas: 3
