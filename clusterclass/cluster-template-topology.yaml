@@ -19,6 +19,11 @@ spec:
     controlPlane:
       metadata: {}
       replicas: ${CONTROL_PLANE_MACHINE_COUNT}
+      variables:
+      - name: rke2CNI
+        value: none
+      - name: dockerImage
+        value: kindest/node:${KUBERNETES_VERSION}
     workers:
       machineDeployments:
       - class: default-worker
