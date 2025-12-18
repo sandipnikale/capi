@@ -36,7 +36,7 @@ kubectl wait deployment -n cert-manager cert-manager-webhook --for condition=Ava
 echo "🌐 Fetching external IP for Rancher hostname..."
 export NODE_IP=$(curl -s https://checkip.amazonaws.com)
 export RANCHER_HOSTNAME="${NODE_IP}.sslip.io"
-export RANCHER_VERSION=v2.13.0
+export RANCHER_VERSION=v2.11.3
 
 echo "🐮 Installing Rancher with hostname $RANCHER_HOSTNAME..."
 helm install rancher rancher-latest/rancher \
